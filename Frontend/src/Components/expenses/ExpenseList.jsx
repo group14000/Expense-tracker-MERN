@@ -1,3 +1,4 @@
+// ExpenseList.js (frontend)
 import { useState, useEffect } from "react";
 
 const ExpenseList = () => {
@@ -29,37 +30,21 @@ const ExpenseList = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleDeleteExpense = (expenseId) => {
-    setExpenses((prevExpenses) =>
-      prevExpenses.filter((expense) => expense.id !== expenseId)
-    );
-
     fetch(`http://localhost:3001/api/delete-expense/${expenseId}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
       .then((data) => {
-        if (!data.success) {
+        if (data.success) {
+          setExpenses((prevExpenses) =>
+            prevExpenses.filter((expense) => expense._id !== expenseId)
+          );
+        } else {
           console.error("Error deleting expense:", data.error);
-          fetch("http://localhost:3001/api/get-expenses")
-            .then((response) => response.json())
-            .then((data) => {
-              setExpenses(data);
-            })
-            .catch((error) => {
-              console.error("Error fetching expenses:", error);
-            });
         }
       })
       .catch((error) => {
         console.error("Error deleting expense:", error);
-        fetch("http://localhost:3001/api/get-expenses")
-          .then((response) => response.json())
-          .then((data) => {
-            setExpenses(data);
-          })
-          .catch((error) => {
-            console.error("Error fetching expenses:", error);
-          });
       });
   };
 
@@ -75,7 +60,7 @@ const ExpenseList = () => {
             <ul className="list-none p-0">
               {currentExpenses.map((expense) => (
                 <li
-                  key={expense.id}
+                  key={expense._id}
                   className="bg-gray-100 rounded-md p-4 mb-4"
                 >
                   <p className="text-lg font-semibold text-gray-800 mb-2">
@@ -88,7 +73,7 @@ const ExpenseList = () => {
                     {expense.expenseCategory}
                   </p>
                   <button
-                    onClick={() => handleDeleteExpense(expense.id)}
+                    onClick={() => handleDeleteExpense(expense._id)}
                     className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition duration-300"
                   >
                     Delete
