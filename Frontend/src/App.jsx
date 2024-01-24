@@ -31,7 +31,7 @@ const App = () => {
             <Route path="/payment" element={<RazorpayButton />} />
           </>
         ) : (
-          <Route path="/*" element={<Navigate to="/login" />} />
+          <Route path="*" element={<Navigate to="/login" />} />
         )}
       </Routes>
       <Footer />
