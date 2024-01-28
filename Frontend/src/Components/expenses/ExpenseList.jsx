@@ -8,7 +8,7 @@ const ExpenseList = () => {
   const [expensesPerPage] = useState(10);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/get-expenses")
+    fetch(`http://localhost:3001/api/get-expenses?page=${currentPage}`)
       .then((response) => response.json())
       .then((data) => {
         setExpenses(data);
@@ -18,16 +18,7 @@ const ExpenseList = () => {
         console.error("Error fetching expenses:", error);
         setLoading(false);
       });
-  }, []);
-
-  const indexOfLastExpense = currentPage * expensesPerPage;
-  const indexOfFirstExpense = indexOfLastExpense - expensesPerPage;
-  const currentExpenses = expenses.slice(
-    indexOfFirstExpense,
-    indexOfLastExpense
-  );
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  }, [currentPage]); // Add currentPage as a dependency
 
   const handleDeleteExpense = (expenseId) => {
     fetch(`http://localhost:3001/api/delete-expense/${expenseId}`, {
@@ -48,6 +39,10 @@ const ExpenseList = () => {
       });
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200">
       <div className="w-full max-w-md p-6 bg-white rounded-md shadow-md">
@@ -58,7 +53,7 @@ const ExpenseList = () => {
         ) : (
           <div>
             <ul className="list-none p-0">
-              {currentExpenses.map((expense) => (
+              {expenses.map((expense) => (
                 <li
                   key={expense._id}
                   className="bg-gray-100 rounded-md p-4 mb-4"
@@ -89,7 +84,7 @@ const ExpenseList = () => {
               ].map((number) => (
                 <button
                   key={number + 1}
-                  onClick={() => paginate(number + 1)}
+                  onClick={() => handlePageChange(number + 1)}
                   className={`mr-2 px-3 py-1 rounded-md ${
                     currentPage === number + 1
                       ? "bg-blue-500 text-white"

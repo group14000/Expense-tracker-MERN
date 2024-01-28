@@ -40,16 +40,23 @@ app.post("/api/add-expense", async (req, res) => {
   }
 });
 
-// Define a route to handle GET requests for fetching all expenses
 app.get("/api/get-expenses", async (req, res) => {
   try {
-    // Fetch all expenses from the database
-    const expenses = await Expense.find();
+    const page = req.query.page || 1; // Get the requested page from the query parameter
+    const limit = 10; // Number of items per page
+
+    // Calculate the skip value to implement LIFO order
+    const skip = (page - 1) * limit;
+
+    // Fetch expenses with pagination and LIFO order
+    const expenses = await Expense.find()
+      .sort({ _id: -1 }) // Sort in descending order by _id (assuming _id is a timestamp)
+      .skip(skip)
+      .limit(limit);
 
     // Send the list of expenses as a JSON response to the client
     res.json(expenses);
   } catch (error) {
-    // Handle errors by logging and sending an error response
     console.error("Error fetching expenses:", error);
     res.status(500).json({ error: "Error fetching expenses" });
   }
